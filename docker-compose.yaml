@@ -1,0 +1,28 @@
+services:
+  redis:
+    image: redis:7.4.3
+    container_name: redis
+    ports:
+      - "6382:6379"
+    restart: unless-stopped
+  main_db:
+    image: postgres:17
+    container_name: deposit_db
+    environment:
+      POSTGRES_DB: deposit
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: password
+      PGDATA: /data/postgres
+    volumes:
+      - deposit_db:/data/postgres
+    ports:
+      - "5435:5432"
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U root -d deposit" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  deposit_db:

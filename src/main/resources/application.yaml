@@ -1,0 +1,38 @@
+spring:
+  profiles:
+    active: dev
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+  liquibase:
+    enabled:  false
+#    change-log: classpath:/db/changelog/db.changelog-master.yaml
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    disable-swagger-default-url: true
+  paths-to-match: /**
+#  packages-to-scan: com.library.library.controller
+axon:
+  axonserver:
+    enabled: false
+
+camunda:
+  client:
+    mode: self-managed
+    zeebe:
+      enabled: true
+      grpc-address: http://192.168.179.20:26500
+      rest-address: http://192.168.179.20:8080
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type: WARN
+    org.axonframework: DEBUG
+    org.hibernate.type.descriptor.sql: TRACE

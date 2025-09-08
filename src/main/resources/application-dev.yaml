@@ -1,0 +1,22 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5435/deposit
+    username: root
+    password: password
+    driver-class-name: org.postgresql.Driver
+
+  cache:
+    type: redis
+  data:
+    redis:
+      host: localhost
+      port: 6382   # <== because redis in Docker is mapped 6380:6379 for local
+      timeout: 2000
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.data.redis: DEBUG
+
+server:
+  port: 8080
+debug: true
