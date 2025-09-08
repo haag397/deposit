@@ -3,14 +3,11 @@ package com.arch.deposit.service;
 import java.util.Map;
 import java.util.UUID;
 
-import lombok.RequiredArgsConstructor;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.springframework.stereotype.Service;
 
 import com.arch.deposit.command.SelectDepositTypeCommand;
 import com.arch.deposit.command.StartDepositOpeningCommand;
-import com.arch.deposit.projection.DepositView;
-import com.arch.deposit.projection.DepositViewRepository;
 
 import io.camunda.zeebe.client.ZeebeClient;
 
