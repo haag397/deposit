@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.List;
 
-@FeignClient(name = "core-client", url = "http://192.168.179.20:8290")
+@FeignClient(name = "core-client", url = "http://localhost:8290")
 public interface CoreClient {
     @GetMapping("/api/corebanking/deposits/v1.0/types")
     List<CoreDepositTypeDTO> getDepositTypes();
