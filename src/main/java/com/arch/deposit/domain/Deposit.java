@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -86,10 +88,9 @@ public class Deposit {
     @Column(name = "is_commercial_deposit")
     private Boolean isCommercialDeposit;
 
-    @ElementCollection
-    @CollectionTable(name = "deposit_withdraw_tools", joinColumns = @JoinColumn(name = "deposit_id"))
-    @Column(name = "withdraw_tool")
-    private List<String> withdrawTools;
+    @Column(name = "withdraw_tools", columnDefinition = "jsonb")
+    @JdbcTypeCode(SqlTypes.JSON)
+    private java.util.List<String> withdrawTools;
 
     @Column(name = "follow_code")
     private String followCode;
@@ -103,10 +104,9 @@ public class Deposit {
     @Column(name = "current_without_cheque_book")
     private Boolean currentWithoutChequeBook;
 
-    @ElementCollection
-    @CollectionTable(name = "deposit_withdraw_tool_codes", joinColumns = @JoinColumn(name = "deposit_id"))
-    @Column(name = "withdraw_tool_code")
-    private List<String> withdrawToolCodes;
+    @Column(name = "withdraw_tool_codes", columnDefinition = "jsonb")
+    @JdbcTypeCode(SqlTypes.JSON)
+    private java.util.List<String> withdrawToolCodes;
 
     @Column(name = "deposit_right")
     private Boolean depositRight;
