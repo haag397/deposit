@@ -1,9 +1,12 @@
 package com.arch.deposit.infrastructure.feign.core.service;
 
-import com.arch.deposit.infrastructure.feign.core.dto.CoreDepositTypeDTO;
+import com.arch.deposit.infrastructure.feign.core.dto.CoreCustomerDepositsResponseDTO;
+import com.arch.deposit.infrastructure.feign.core.dto.CoreDepositTypeResponseDTO;
 
 import java.util.List;
 
 public interface CoreService {
-    List<CoreDepositTypeDTO> getDepositTypes();
+    List<CoreDepositTypeResponseDTO> getDepositTypes();
+    List<CoreCustomerDepositsResponseDTO> getCustomerDeposits(String cif);
+
 }
