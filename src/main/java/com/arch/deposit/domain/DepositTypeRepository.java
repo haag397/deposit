@@ -1,4 +1,4 @@
-package com.arch.deposit.deposittype;
+package com.arch.deposit.domain;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

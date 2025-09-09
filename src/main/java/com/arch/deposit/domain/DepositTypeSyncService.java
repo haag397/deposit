@@ -1,6 +1,5 @@
-package com.arch.deposit.deposittype;
+package com.arch.deposit.domain;
 
-import com.arch.deposit.infrastructure.feign.core.CoreClient;
 import com.arch.deposit.infrastructure.feign.core.service.CoreService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

@@ -1,7 +1,7 @@
 package com.arch.deposit.worker;
 
 
-import com.arch.deposit.deposittype.DepositTypeRepository;
+import com.arch.deposit.domain.DepositTypeRepository;
 import io.camunda.zeebe.client.api.response.ActivatedJob;
 import io.camunda.zeebe.spring.client.annotation.JobWorker;
 import lombok.RequiredArgsConstructor;

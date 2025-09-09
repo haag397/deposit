@@ -1,4 +1,4 @@
-package com.arch.deposit.deposittype;
+package com.arch.deposit.domain;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

@@ -1,7 +1,7 @@
 package com.arch.deposit.controller;
 
-import com.arch.deposit.deposittype.DepositType;
-import com.arch.deposit.deposittype.DepositTypeSyncService;
+import com.arch.deposit.domain.DepositType;
+import com.arch.deposit.domain.DepositTypeSyncService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;

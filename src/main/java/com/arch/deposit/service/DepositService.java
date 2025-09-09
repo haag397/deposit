@@ -3,7 +3,6 @@ package com.arch.deposit.service;
 import java.util.Map;
 import java.util.UUID;
 
-import com.arch.deposit.infrastructure.feign.core.service.CoreService;
 import lombok.RequiredArgsConstructor;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.springframework.stereotype.Service;
@@ -23,44 +22,48 @@ public class DepositService {
     private final CommandGateway commandGateway;
     private final ZeebeClient zeebeClient;
 
-    /**
-     * First step: user selects a deposit type. We create the deposit aggregate,
-     * start a BPMN process instance, and publish the message that moves the
-     * process to the next step.
-     *
-     * @return the generated deposit identifier
-     */
-    public String selectDepositType(String userId, UUID depositTypeId) {
+    public String startSession(String userId) {
         String depositId = UUID.randomUUID().toString();
-
-        commandGateway.sendAndWait(new SelectDepositTypeCommand(depositId, userId, depositTypeId));
-
         zeebeClient.newCreateInstanceCommand()
-                .bpmnProcessId("Process_182eqvi")
+                .bpmnProcessId("deposit-opening")
                 .latestVersion()
-                .variables(Map.of("userID", userId, "depositId", depositId))
+                .variables(Map.of("userId", userId, "depositId", depositId))
                 .send()
                 .join();
-
-        zeebeClient.newPublishMessageCommand()
-                .messageName("select-deposit-type")
-                .correlationKey(userId)
-                .variables(Map.of("depositId", depositId, "depositTypeId", depositTypeId.toString()))
-                .send()
-                .join();
-
         return depositId;
     }
 
-    /** Third step: user confirms starting the deposit opening. */
-    public void startDepositOpening(String userId, String depositId) {
+    // Step 1 – select type (publish to "select deposit type")
+    public void selectDepositType(String userId, String depositId, UUID depositTypeId) {
+        commandGateway.sendAndWait(new SelectDepositTypeCommand(depositId, userId, depositTypeId));
+
+        zeebeClient.newPublishMessageCommand()
+                .messageName("select deposit type")       // <-- EXACT name from BPMN
+                .correlationKey(depositId)                // <-- uses depositId (matches =depositId)
+                .variables(Map.of(
+                        "depositId", depositId,               // optional but handy
+                        "depositTypeId", depositTypeId.toString()
+                ))
+                .send().join();
+    }
+    // Step 2 – confirm start (publish to "start deposit")
+    public void confirmStartOpening(String userId, String depositId) {
+        zeebeClient.newPublishMessageCommand()
+                .messageName("start deposit")             // <-- EXACT
+                .correlationKey(depositId)
+                .variables(Map.of("depositId", depositId, "confirm", true))
+                .send().join();
+    }
+
+    // Step 3 – accept terms (publish to "accept rules one")
+    public void acceptTerms(String userId, String depositId) {
+        // Domain: now really start it
         commandGateway.sendAndWait(new StartDepositOpeningCommand(depositId));
 
         zeebeClient.newPublishMessageCommand()
-                .messageName("start-deposit-opening")
-                .correlationKey(userId)
-                .variables(Map.of("depositId", depositId))
-                .send()
-                .join();
+                .messageName("accept rules one")          // <-- EXACT
+                .correlationKey(depositId)
+                .variables(Map.of("accepted", true))
+                .send().join();
     }
 }
