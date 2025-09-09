@@ -3,6 +3,8 @@ package com.arch.deposit.service;
 import java.util.Map;
 import java.util.UUID;
 
+import com.arch.deposit.infrastructure.feign.core.service.CoreService;
+import lombok.RequiredArgsConstructor;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.springframework.stereotype.Service;
 
@@ -15,16 +17,11 @@ import io.camunda.zeebe.client.ZeebeClient;
  * Application service orchestrating commands to Axon and messages to Camunda.
  */
 @Service
+@RequiredArgsConstructor
 public class DepositService {
 
     private final CommandGateway commandGateway;
     private final ZeebeClient zeebeClient;
-
-    public DepositService(CommandGateway commandGateway,
-                          ZeebeClient zeebeClient) {
-        this.commandGateway = commandGateway;
-        this.zeebeClient = zeebeClient;
-    }
 
     /**
      * First step: user selects a deposit type. We create the deposit aggregate,

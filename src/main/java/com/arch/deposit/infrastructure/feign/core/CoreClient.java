@@ -11,4 +11,3 @@ public interface CoreClient {
     @GetMapping("/api/corebanking/deposits/v1.0/types")
     List<CoreDepositTypeDTO> getDepositTypes();
 }
-
