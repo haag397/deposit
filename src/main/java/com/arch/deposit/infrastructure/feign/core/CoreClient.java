@@ -14,5 +14,5 @@ public interface CoreClient {
     List<CoreDepositTypeResponseDTO> getDepositTypes();
 
     @GetMapping("/api/corebanking/deposits/v1.0/customer/{userId}")
-    List<CoreCustomerDepositsResponseDTO> getCustomerDeposits(@PathVariable("userId") String userId);
+    CoreCustomerDepositsResponseDTO getCustomerDeposits(@PathVariable("userId") String userId);
 }

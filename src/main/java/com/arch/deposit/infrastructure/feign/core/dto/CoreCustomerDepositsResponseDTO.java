@@ -22,21 +22,21 @@ public record CoreCustomerDepositsResponseDTO(
         String individualOrSharedDeposit,
         String openingDate,
         List<SignerInfoResponse> signerInfo,
-        boolean isCommercialDeposit,
+        Boolean isCommercialDeposit,
         List<String> withdrawTools,
         String followCode,
         String availableAmount,
         String actualAmount,
-        boolean currentWithoutChequeBook,
+        Boolean currentWithoutChequeBook,
         List<String> withdrawToolCodes,
-        boolean depositRight,
+        Boolean depositRight,
         String englishIndividualOrSharedDeposit,
         String depositIdentity,
         String depositIdentityCode,
 
-        Object depositInterestRateInfo, // always null in sample; Object keeps it generic
+        String depositInterestRateInfo, // always null in sample; Object keeps it generic
 
-        boolean withdrawRightWithCheque,
+        Boolean withdrawRightWithCheque,
         String depositTypeTreeRoot,
         String depositTypeTreeRootCode
 ) {

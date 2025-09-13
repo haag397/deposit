@@ -52,8 +52,8 @@ public class Deposit {
     private String depositIban;
     @Column(name = "portion")
     private String portion;
-    @Column(name = "is_specia;")
-    private String isSpecial;
+    @Column(name = "is_special")
+    private Boolean isSpecial;
     @Column(name = "full_name")
     private String fullName;
     @Column(name = "individual_or_shared_deposit")
@@ -73,7 +73,7 @@ public class Deposit {
     @Column(name = "available_amount")
     private BigDecimal availableAmount;
     @Column(name = "account_amount")
-    private BigDecimal accountAmount;
+    private BigDecimal actualAmount;
     @Column(name = "current_without_cheque_book")
     private Boolean currentWithoutChequeBook;
     @Column(name = "withdraw_tool_codes", columnDefinition = "jsonb")

@@ -1,32 +1,40 @@
 package com.arch.deposit.domain;
 
 import com.arch.deposit.infrastructure.feign.core.dto.CoreCustomerDepositsResponseDTO;
-import org.mapstruct.Mapper;
-import org.mapstruct.BeanMapping;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.mapstruct.*;
 
 import java.math.BigDecimal;
 
 @Mapper(componentModel = "spring")
 public interface DepositMapper {
 
-    // Create new entity from Core DTO
+    // CREATE: DTO -> Entity
+    @Mapping(target = "userId", expression = "java(userId)") // <-- set from parameter
+    // Everything else with same name auto-maps.
+    // String->Boolean: withdrawRight, isSpecial will use mapStringToBoolean(...)
+    // String->BigDecimal: actualAmount/availableAmount will use mapStringToBigDecimal(...)
+    // depositInterestRateInfo is String->String, no need to ignore
+    // If signerInfo types differ, uncomment the next line to ignore for now:
+    // @Mapping(target = "signerInfo", ignore = true)
     Deposit toNewEntity(CoreCustomerDepositsResponseDTO src, String userId);
 
-    // Update existing entity in place (ignores nulls from DTO)
+    // UPDATE: ignore nulls so we don't overwrite existing values with null from Core
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "userId", ignore = true) // don't overwrite userId during update
+    // If signerInfo types differ, uncomment to ignore:
+    // @Mapping(target = "signerInfo", ignore = true)
     void updateEntity(CoreCustomerDepositsResponseDTO src, @MappingTarget Deposit target, String userId);
 
-    // ---------- Converters ----------
+    // ---------- Converters that MapStruct will auto-pick by types ----------
 
-    // String → Boolean
+    /** For String -> Boolean (withdrawRight, isSpecial, etc.) */
     default Boolean mapStringToBoolean(String value) {
         if (value == null) return null;
         return Boolean.parseBoolean(value);
     }
 
-    // String → BigDecimal
+    /** For String -> BigDecimal (actualAmount, availableAmount, etc.) */
     default BigDecimal mapStringToBigDecimal(String value) {
         if (value == null || value.isBlank()) return null;
         try {
