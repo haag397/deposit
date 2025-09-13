@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:zeebe="http://camunda.org/schema/zeebe/1.0"
+  id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:process id="Process_182eqvi" isExecutable="true">
+    <bpmn:startEvent id="start">
+      <bpmn:outgoing>flow_start_to_startOpening</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:intermediateCatchEvent id="startOpening" name="Start deposit opening">
+      <bpmn:incoming>flow_start_to_startOpening</bpmn:incoming>
+      <bpmn:outgoing>flow_startOpening_to_displayTypes</bpmn:outgoing>
+      <bpmn:messageEventDefinition messageRef="msg_start_opening" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:serviceTask id="displayTypes" name="Display user deposits for deposit selection">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="Display user deposits" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_startOpening_to_displayTypes</bpmn:incoming>
+      <bpmn:outgoing>flow_displayTypes_to_selectType</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:intermediateCatchEvent id="selectType" name="select deposit type">
+      <bpmn:incoming>flow_displayTypes_to_selectType</bpmn:incoming>
+      <bpmn:outgoing>flow_selectType_to_acceptRules</bpmn:outgoing>
+      <bpmn:messageEventDefinition messageRef="msg_select_type" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:intermediateCatchEvent id="acceptRules" name="Acceptance of the rules for opening a term deposit">
+      <bpmn:incoming>flow_selectType_to_acceptRules</bpmn:incoming>
+      <bpmn:outgoing>flow_acceptRules_to_continue</bpmn:outgoing>
+      <bpmn:messageEventDefinition messageRef="msg_accept_rules" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:intermediateCatchEvent id="continueEvent" name="continue">
+      <bpmn:incoming>flow_acceptRules_to_continue</bpmn:incoming>
+      <bpmn:outgoing>flow_continue_to_end</bpmn:outgoing>
+      <bpmn:messageEventDefinition messageRef="msg_continue" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:endEvent id="end">
+      <bpmn:incoming>flow_continue_to_end</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="flow_start_to_startOpening" sourceRef="start" targetRef="startOpening" />
+    <bpmn:sequenceFlow id="flow_startOpening_to_displayTypes" sourceRef="startOpening" targetRef="displayTypes" />
+    <bpmn:sequenceFlow id="flow_displayTypes_to_selectType" sourceRef="displayTypes" targetRef="selectType" />
+    <bpmn:sequenceFlow id="flow_selectType_to_acceptRules" sourceRef="selectType" targetRef="acceptRules" />
+    <bpmn:sequenceFlow id="flow_acceptRules_to_continue" sourceRef="acceptRules" targetRef="continueEvent" />
+    <bpmn:sequenceFlow id="flow_continue_to_end" sourceRef="continueEvent" targetRef="end" />
+  </bpmn:process>
+  <bpmn:message id="msg_start_opening" name="start-deposit-opening">
+    <bpmn:extensionElements>
+      <zeebe:subscription correlationKey="=depositId" />
+    </bpmn:extensionElements>
+  </bpmn:message>
+  <bpmn:message id="msg_select_type" name="select-deposit-type">
+    <bpmn:extensionElements>
+      <zeebe:subscription correlationKey="=depositId" />
+    </bpmn:extensionElements>
+  </bpmn:message>
+  <bpmn:message id="msg_accept_rules" name="accept-rules">
+    <bpmn:extensionElements>
+      <zeebe:subscription correlationKey="=depositId" />
+    </bpmn:extensionElements>
+  </bpmn:message>
+  <bpmn:message id="msg_continue" name="continue">
+    <bpmn:extensionElements>
+      <zeebe:subscription correlationKey="=depositId" />
+    </bpmn:extensionElements>
+  </bpmn:message>
+</bpmn:definitions>
