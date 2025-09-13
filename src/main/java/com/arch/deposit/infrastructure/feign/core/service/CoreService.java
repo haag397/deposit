@@ -7,6 +7,5 @@ import java.util.List;
 
 public interface CoreService {
     List<CoreDepositTypeResponseDTO> getDepositTypes();
-    List<CoreCustomerDepositsResponseDTO> getCustomerDeposits(String cif);
-
+    CoreCustomerDepositsResponseDTO getCustomerDeposits(String userId);
 }

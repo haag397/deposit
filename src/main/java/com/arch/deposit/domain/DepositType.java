@@ -11,9 +11,9 @@ import java.util.UUID;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @Data
 @Table(name = "\"deposit-type\"")
+@Builder
 public class DepositType {
     @Id
     @Column(name = "id", updatable = false, nullable = false, unique = true)

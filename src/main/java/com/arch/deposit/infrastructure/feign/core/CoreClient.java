@@ -1,5 +1,6 @@
 package com.arch.deposit.infrastructure.feign.core;
 
+import com.arch.deposit.infrastructure.feign.core.dto.CoreCustomerDepositsResponseDTO;
 import com.arch.deposit.infrastructure.feign.core.dto.CoreDepositTypeResponseDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +13,6 @@ public interface CoreClient {
     @GetMapping("/api/corebanking/deposits/v1.0/types")
     List<CoreDepositTypeResponseDTO> getDepositTypes();
 
-    @GetMapping("/api/corebanking/deposits/v1.0/customer/{cif}")
-    List<CoreDepositTypeResponseDTO> getCustomerDeposits(@PathVariable("cif") String cif);
+    @GetMapping("/api/corebanking/deposits/v1.0/customer/{userId}")
+    List<CoreCustomerDepositsResponseDTO> getCustomerDeposits(@PathVariable("userId") String userId);
 }
