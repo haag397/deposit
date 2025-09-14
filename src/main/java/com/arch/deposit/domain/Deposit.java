@@ -22,8 +22,6 @@ public class Deposit {
     @Id
     @Column(name = "id", updatable = false, nullable = false, unique = true)
     private UUID id;
-    @Column(name = "userId", nullable = false)
-    private String userId;
     @Column(name = "deposit_number")
     private String depositNumber;
     @Column(name = "main_customer_number")

@@ -1,4 +1,4 @@
-package com.arch.deposit.controller;
+package com.arch.deposit.api.controller;
 
 import com.arch.deposit.domain.DepositType;
 import com.arch.deposit.domain.DepositTypeSyncService;
