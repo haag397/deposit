@@ -4,6 +4,7 @@ import com.arch.deposit.domain.Deposit;
 import com.arch.deposit.domain.DepositRepository;
 import com.arch.deposit.event.DepositCreatedEvent;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.axonframework.eventhandling.EventHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,12 +14,14 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class DepositProjection {
     private final DepositRepository repo;
 
     @EventHandler
     @Transactional
     public void on(DepositCreatedEvent e) {
+        log.info("Handling DepositCreatedEvent for depositId={} number={}", e.depositId(), e.depositNumber());
         // id = process correlation id
         UUID id = UUID.fromString(e.depositId());
 
@@ -38,7 +41,6 @@ public class DepositProjection {
         if (e.currentWithdrawableAmount() != null) {
             try { d.setAvailableAmount(new BigDecimal(e.currentWithdrawableAmount())); } catch (Exception ignore) {}
         }
-
         repo.save(d);
     }
 }

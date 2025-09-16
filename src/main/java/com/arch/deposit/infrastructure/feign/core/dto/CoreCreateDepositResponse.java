@@ -3,10 +3,10 @@ package com.arch.deposit.infrastructure.feign.core.dto;
 // Response envelope from Core (success and business errors)
 public record CoreCreateDepositResponse(
         Result result,
-        Status status,
+        HttpStatus status,
         Meta meta
 ) {
-    public record Result(Data data, CoreInnerStatus status) {
+    public record Result(Data data, Status status) {
         public record Data(
                 String transactionDate,
                 String depositNumber,
@@ -14,9 +14,9 @@ public record CoreCreateDepositResponse(
                 String currentWithdrawableAmount,
                 String iban
         ) {}
-        public record CoreInnerStatus(String code, String message, String description) {}
+        public record Status(String code, String message, String description) {}
     }
-    public record Status(Integer code, String message, String description) {}
+    public record HttpStatus(Integer code, String message) {}
     public record Meta(String transactionId) {}
 }
 
