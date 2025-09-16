@@ -28,12 +28,12 @@ public class DepositAppService {
     private final CoreService core;
 
     // Step 0
-    public String startSession(String userId) {
+    public String startSession(String userId, String customerNumber) {
         String depositId = UUID.randomUUID().toString();
         zeebe.newCreateInstanceCommand()
                 .bpmnProcessId("deposit-opening")
                 .latestVersion()
-                .variables(Map.of("userId", userId, "depositId", depositId))
+                .variables(Map.of("userId", userId,"customerNumber", customerNumber, "depositId", depositId))
                 .send()
                 .join();
         return depositId;

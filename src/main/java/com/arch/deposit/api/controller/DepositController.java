@@ -28,7 +28,7 @@ public class DepositController {
 
     @PostMapping("/session")
     public String startSession(@Valid @RequestBody StartSessionReq req) {
-    return app.startSession(req.userId());
+    return app.startSession(req.userId(), req.customerNumber());
 }
 
     // 1) Select deposit type

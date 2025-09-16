@@ -6,5 +6,5 @@ import jakarta.validation.constraints.NotNull;
 public record SelectTypeReq(
         @NotBlank String userId,
         @NotBlank String depositId,
-        @NotNull String name
+        @NotBlank String name
 ) {}
