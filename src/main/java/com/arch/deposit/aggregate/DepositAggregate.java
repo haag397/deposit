@@ -1,11 +1,7 @@
 package com.arch.deposit.aggregate;
 
 import com.arch.deposit.command.CreateDepositCommand;
-import com.arch.deposit.command.SelectDepositTypeCommand;
-import com.arch.deposit.command.StartDepositOpeningCommand;
 import com.arch.deposit.event.DepositCreatedEvent;
-import com.arch.deposit.event.DepositOpeningStartedEvent;
-import com.arch.deposit.event.DepositTypeSelectedEvent;
 import lombok.NoArgsConstructor;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
@@ -29,10 +25,9 @@ public class DepositAggregate {
                 cmd.depositId(),
                 cmd.userId(),
                 cmd.depositNumber(),
-                cmd.depositTypeId(),
-                cmd.amount(),
-                cmd.profitDestinationType(),
-                cmd.profitDestinationAccount()
+                cmd.iban(),
+                cmd.currentAmount(),
+                cmd.currentWithdrawableAmount()
         ));
     }
 

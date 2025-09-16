@@ -4,7 +4,6 @@ import com.arch.deposit.api.dto.*;
 import com.arch.deposit.domain.DepositType;
 import com.arch.deposit.domain.DepositTypeRepository;
 import com.arch.deposit.service.DepositAppService;
-//import com.arch.deposit.service.DepositService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -12,23 +11,19 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/deposits")
 @RequiredArgsConstructor
 public class DepositController {
 
-//    private final DepositTypeRepository typeRepository;
-//    private final DepositService depositService;
-
-    private final DepositTypeRepository typeRepo;
+    private final DepositTypeRepository depositTypeRepository;
     private final DepositAppService app;
 
     /** Browse available deposit types (from your DB). */
     @GetMapping("/types")
     public List<DepositType> listTypes() {
-        return typeRepo.findAll();
+        return depositTypeRepository.findAll();
     }
 
     @PostMapping("/session")
@@ -39,9 +34,12 @@ public class DepositController {
     // 1) Select deposit type
     @PostMapping("/types/select")
     public void selectType(@Valid @RequestBody SelectTypeReq req) {
-        typeRepo.findById(req.typeId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown depositTypeId"));
-        app.selectDepositType(req.userId(), req.depositId(), req.typeId());
+        var type = depositTypeRepository.findByName(req.name())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST, "Unknown deposit type name: " + req.name()));
+
+        // app expects a UUID -> pass the entity id
+        app.selectDepositType(req.userId(), req.depositId(), type.getId());
     }
 
     // 2) Start deposit opening
@@ -58,7 +56,7 @@ public class DepositController {
 
     // Continue after accept
     @PostMapping("/after-accept/continue")
-    public void continueAfterAccept(@Valid @RequestBody BasicReq req) {
+    public void continueAfterAccept(@Valid @RequestBody ContinueReq req) {
         app.continueAfterAccept(req.userId(), req.depositId());
     }
 
@@ -70,7 +68,7 @@ public class DepositController {
 
     // Continue after select
     @PostMapping("/product/continue")
-    public void continueAfterSelect(@Valid @RequestBody BasicReq req) {
+    public void continueAfterSelect(@Valid @RequestBody ContinueReq req) {
         app.continueAfterSelect(req.userId(), req.depositId());
     }
 
@@ -82,7 +80,7 @@ public class DepositController {
 
     // Confirm amount
     @PostMapping("/amount/confirm")
-    public void confirmAmount(@Valid @RequestBody BasicReq req) {
+    public void confirmAmount(@Valid @RequestBody ContinueReq req) {
         app.confirmAmount(req.userId(), req.depositId());
     }
 
@@ -94,7 +92,7 @@ public class DepositController {
 
     // Continue after choose destination
     @PostMapping("/profit-destination/continue")
-    public void continueAfterChooseDestination(@Valid @RequestBody BasicReq req) {
+    public void continueAfterChooseDestination(@Valid @RequestBody ContinueReq req) {
         app.continueAfterChooseDestination(req.userId(), req.depositId());
     }
 

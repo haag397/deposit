@@ -4,8 +4,5 @@ import jakarta.validation.constraints.NotBlank;
 
 public record SelectDepositReq(
         @NotBlank String userId,
-        @NotBlank String depositId,
-        @NotBlank String productCode,
-        String iban,
-        String cardPan
+        @NotBlank String depositId
 ) {}

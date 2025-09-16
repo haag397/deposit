@@ -4,10 +4,16 @@ import com.arch.deposit.api.dto.FinalConfirmReq;
 import com.arch.deposit.api.dto.ProfitDestinationReq;
 import com.arch.deposit.api.dto.SelectDepositReq;
 import com.arch.deposit.command.CreateDepositCommand;
+import com.arch.deposit.infrastructure.feign.core.dto.CoreCreateDepositResponse;
+import com.arch.deposit.infrastructure.feign.core.dto.CreateDepositSimpleReq;
+import com.arch.deposit.infrastructure.feign.core.dto.CreateDepositWithTransferReq;
+import com.arch.deposit.infrastructure.feign.core.service.CoreService;
 import io.camunda.zeebe.client.ZeebeClient;
 import lombok.RequiredArgsConstructor;
 import org.axonframework.commandhandling.gateway.CommandGateway;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -19,6 +25,7 @@ public class DepositAppService {
 
     private final ZeebeClient zeebe;
     private final CommandGateway commandGateway;
+    private final CoreService core;
 
     // Step 0
     public String startSession(String userId) {
@@ -75,11 +82,7 @@ public class DepositAppService {
         zeebe.newPublishMessageCommand()
                 .messageName("Select deposit")
                 .correlationKey(depositId)
-                .variables(Map.of(
-                        "productCode", req.productCode(),
-                        "iban", req.iban(),
-                        "cardPan", req.cardPan()
-                ))
+                .variables(Map.of())
                 .send()
                 .join();
     }
@@ -133,19 +136,55 @@ public class DepositAppService {
     }
 
     // Final step: write domain state then nudge BPMN to end
+
     public void confirmInfoAndOpen(FinalConfirmReq req) {
-        // 1) Domain write
+        // 1) Call Core
+        CoreCreateDepositResponse coreResp;
+        if (req.sourceDeposit() != null || req.destDeposit() != null) {
+            coreResp = core.createDepositWithInterest(new CreateDepositWithTransferReq(
+                    req.deposType(),
+                    req.currency(),
+                    req.amount().toPlainString(),     // Core expects string
+                    req.sourceDeposit(),
+                    req.destDeposit(),
+                    req.customerNumber(),
+                    req.currentBranchCode()
+            ));
+        } else {
+            coreResp = core.createDeposit(new CreateDepositSimpleReq(
+                    req.deposType(),
+                    req.currency(),
+                    req.amount().toPlainString(),
+                    req.customerNumber(),
+                    req.currentBranchCode()
+            ));
+        }
+
+        // 2) Check Core status and extract data
+        var http = coreResp.status();
+        if (http == null || http.code() == null || http.code() != 200) {
+            var code = (http != null ? http.code() : null);
+            var msg  = (http != null ? http.message() : "Unknown error");
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "Core deposit creation failed (httpCode=" + code + "): " + msg);
+        }
+
+        var data = coreResp.result() != null ? coreResp.result().data() : null;
+        if (data == null || data.depositNumber() == null) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Core returned no deposit data");
+        }
+
+        // 3) Domain write via Axon
         commandGateway.sendAndWait(new CreateDepositCommand(
                 req.depositId(),
                 req.userId(),
-                req.depositNumber(),
-                req.depositTypeId(),
-                req.amount(),
-                req.profitDestinationType(),
-                req.profitDestinationAccount()
+                data.depositNumber(),
+                data.iban(),
+                data.currentAmount(),
+                data.currentWithdrawableAmount()
         ));
 
-        // 2) Let BPMN finish
+        // 4) Nudge BPMN to end
         zeebe.newPublishMessageCommand()
                 .messageName("Confirm information and open a deposit")
                 .correlationKey(req.depositId())
