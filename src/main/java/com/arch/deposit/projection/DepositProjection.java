@@ -5,6 +5,7 @@ import com.arch.deposit.domain.DepositRepository;
 import com.arch.deposit.event.DepositCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.axonframework.config.ProcessingGroup;
 import org.axonframework.eventhandling.EventHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,21 +14,21 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @Component
+@ProcessingGroup("deposit-projections")
 @RequiredArgsConstructor
-@Slf4j
 public class DepositProjection {
     private final DepositRepository repo;
 
     @EventHandler
     @Transactional
     public void on(DepositCreatedEvent e) {
-        log.info("Handling DepositCreatedEvent for depositId={} number={}", e.depositId(), e.depositNumber());
+//        log.info("Handling DepositCreatedEvent for depositId={} number={}", e.depositId(), e.depositNumber());
         // id = process correlation id
         UUID id = UUID.fromString(e.depositId());
 
         // idempotency: if already there, skip
-        if (repo.findById(id).isPresent()) return;
-        if (repo.existsByDepositNumber(e.depositNumber())) return;
+//        if (repo.findById(id).isPresent()) return;
+//        if (repo.existsByDepositNumber(e.depositNumber())) return;
 
         var d = new Deposit();
         d.setId(id);

@@ -26,3 +26,4 @@ services:
 
 volumes:
   deposit_db:
+    name: deposit_db
