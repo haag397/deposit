@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: deposit-service
   profiles:
     active: dev
   jpa:
@@ -27,8 +29,12 @@ axon:
   eventhandling:
     processors:
       deposit-projections:       # must match @ProcessingGroup("deposit-projections")
-        mode: subscribing        # <--- projector runs inline with command handling
+        mode: subscribing
+#        mode: tracking # <--- projector runs inline with command handling
         source: eventBus
+#  eventstore:
+#    jdbc:
+#      schema: default
 
 camunda:
   client:
