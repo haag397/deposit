@@ -27,8 +27,8 @@ public class DepositProjection {
         UUID id = UUID.fromString(e.depositId());
 
         // idempotency: if already there, skip
-//        if (repo.findById(id).isPresent()) return;
-//        if (repo.existsByDepositNumber(e.depositNumber())) return;
+        if (repo.findById(id).isPresent()) return;
+        if (repo.existsByDepositNumber(e.depositNumber())) return;
 
         var d = new Deposit();
         d.setId(id);

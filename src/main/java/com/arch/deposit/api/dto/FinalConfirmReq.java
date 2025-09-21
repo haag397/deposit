@@ -11,7 +11,7 @@ public record FinalConfirmReq(
         // what to send to core:
         @NotBlank String deposType,
         @NotBlank String currency,
-        @NotNull BigDecimal amount,
+        @NotNull String amount,
         String sourceDeposit,          // optional
         String destDeposit,            // optional
         @NotBlank String customerNumber,

@@ -5,7 +5,7 @@ import com.arch.deposit.infrastructure.feign.core.dto.*;
 import java.util.List;
 
 public interface CoreService {
-    List<CoreDepositTypeResponseDTO> getDepositTypes();
+//    List<CoreDepositTypeResponseDTO> getDepositTypes();
     CoreCustomerDepositsResponseDTO getCustomerDeposits(String userId);
     CoreCreateDepositResponse createDepositWithInterest(CreateDepositWithTransferReq req);
     CoreCreateDepositResponse createDeposit(CreateDepositSimpleReq req);

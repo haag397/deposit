@@ -32,21 +32,21 @@ public class DepositController {
 }
 
     // 1) Select deposit type
-    @PostMapping("/types/select")
-    public void selectType(@Valid @RequestBody SelectTypeReq req) {
-        var type = depositTypeRepository.findByName(req.name())
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.BAD_REQUEST, "Unknown deposit type name: " + req.name()));
-
-        // app expects a UUID -> pass the entity id
-        app.selectDepositType(req.userId(), req.depositId(), type.getId());
-    }
+//    @PostMapping("/types/select")
+//    public void selectType(@Valid @RequestBody SelectTypeReq req) {
+//        var type = depositTypeRepository.findByName(req.name())
+//                .orElseThrow(() -> new ResponseStatusException(
+//                        HttpStatus.BAD_REQUEST, "Unknown deposit type name: " + req.name()));
+//
+//        // app expects a UUID -> pass the entity id
+//        app.selectDepositType(req.userId(), req.depositId(), type.getId());
+//    }
 
     // 2) Start deposit opening
-    @PostMapping("/start")
-    public void startOpening(@Valid @RequestBody StartOpeningReq req) {
-        app.startDepositOpening(req.userId(), req.depositId());
-    }
+//    @PostMapping("/start")
+//    public void startOpening(@Valid @RequestBody StartOpeningReq req) {
+//        app.startDepositOpening(req.userId(), req.depositId());
+//    }
 
     // 3) Accept rules (drives gateway)
     @PostMapping("/terms/accept")
@@ -55,46 +55,46 @@ public class DepositController {
     }
 
     // Continue after accept
-    @PostMapping("/after-accept/continue")
-    public void continueAfterAccept(@Valid @RequestBody ContinueReq req) {
-        app.continueAfterAccept(req.userId(), req.depositId());
-    }
-
-    // Select deposit/product
-    @PostMapping("/product/select")
-    public void selectDeposit(@Valid @RequestBody SelectDepositReq req) {
-        app.selectDeposit(req.userId(), req.depositId(), req);
-    }
-
-    // Continue after select
-    @PostMapping("/product/continue")
-    public void continueAfterSelect(@Valid @RequestBody ContinueReq req) {
-        app.continueAfterSelect(req.userId(), req.depositId());
-    }
-
-    // Enter amount
-    @PostMapping("/amount")
-    public void enterAmount(@Valid @RequestBody AmountReq req) {
-        app.enterAmount(req.userId(), req.depositId(), req.amount());
-    }
-
-    // Confirm amount
-    @PostMapping("/amount/confirm")
-    public void confirmAmount(@Valid @RequestBody ContinueReq req) {
-        app.confirmAmount(req.userId(), req.depositId());
-    }
-
-    // Choose profit destination
-    @PostMapping("/profit-destination")
-    public void chooseProfitDestination(@Valid @RequestBody ProfitDestinationReq req) {
-        app.chooseProfitDestination(req.userId(), req.depositId(), req);
-    }
-
-    // Continue after choose destination
-    @PostMapping("/profit-destination/continue")
-    public void continueAfterChooseDestination(@Valid @RequestBody ContinueReq req) {
-        app.continueAfterChooseDestination(req.userId(), req.depositId());
-    }
+//    @PostMapping("/after-accept/continue")
+//    public void continueAfterAccept(@Valid @RequestBody ContinueReq req) {
+//        app.continueAfterAccept(req.userId(), req.depositId());
+//    }
+//
+//    // Select deposit/product
+//    @PostMapping("/product/select")
+//    public void selectDeposit(@Valid @RequestBody SelectDepositReq req) {
+//        app.selectDeposit(req.userId(), req.depositId(), req);
+//    }
+//
+//    // Continue after select
+//    @PostMapping("/product/continue")
+//    public void continueAfterSelect(@Valid @RequestBody ContinueReq req) {
+//        app.continueAfterSelect(req.userId(), req.depositId());
+//    }
+//
+//    // Enter amount
+//    @PostMapping("/amount")
+//    public void enterAmount(@Valid @RequestBody AmountReq req) {
+//        app.enterAmount(req.userId(), req.depositId(), req.amount());
+//    }
+//
+//    // Confirm amount
+//    @PostMapping("/amount/confirm")
+//    public void confirmAmount(@Valid @RequestBody ContinueReq req) {
+//        app.confirmAmount(req.userId(), req.depositId());
+//    }
+//
+//    // Choose profit destination
+//    @PostMapping("/profit-destination")
+//    public void chooseProfitDestination(@Valid @RequestBody ProfitDestinationReq req) {
+//        app.chooseProfitDestination(req.userId(), req.depositId(), req);
+//    }
+//
+//    // Continue after choose destination
+//    @PostMapping("/profit-destination/continue")
+//    public void continueAfterChooseDestination(@Valid @RequestBody ContinueReq req) {
+//        app.continueAfterChooseDestination(req.userId(), req.depositId());
+//    }
 
     // Final confirm & open
     @PostMapping("/confirm-open")

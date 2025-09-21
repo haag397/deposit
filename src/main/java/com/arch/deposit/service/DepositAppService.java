@@ -31,7 +31,7 @@ public class DepositAppService {
     public String startSession(String userId, String customerNumber) {
         String depositId = UUID.randomUUID().toString();
         zeebe.newCreateInstanceCommand()
-                .bpmnProcessId("deposit-opening")
+                .bpmnProcessId("opening-deposit")
                 .latestVersion()
                 .variables(Map.of("userId", userId,"customerNumber", customerNumber, "depositId", depositId))
                 .send()
@@ -40,153 +40,198 @@ public class DepositAppService {
     }
 
     // Step 1
-    public void selectDepositType(String userId, String depositId, UUID typeId) {
-        zeebe.newPublishMessageCommand()
-                .messageName("select deposit type")
-                .correlationKey(depositId)
-                .variables(Map.of("userId", userId, "depositTypeId", typeId.toString()))
-                .send()
-                .join();
-    }
-
-    // Step 2
-    public void startDepositOpening(String userId, String depositId) {
-        zeebe.newPublishMessageCommand()
-                .messageName("start deposit")
-                .correlationKey(depositId)
-                .variables(Map.of("userId", userId))
-                .send()
-                .join();
-    }
+//    public void selectDepositType(String userId, String depositId, UUID typeId) {
+//        zeebe.newPublishMessageCommand()
+//                .messageName("select deposit type")
+//                .correlationKey(depositId)
+//                .variables(Map.of("userId", userId, "depositTypeId", typeId.toString()))
+//                .send()
+//                .join();
+//    }
+//
+//    // Step 2
+//    public void startDepositOpening(String userId, String depositId) {
+//        zeebe.newPublishMessageCommand()
+//                .messageName("start deposit")
+//                .correlationKey(depositId)
+//                .variables(Map.of("userId", userId))
+//                .send()
+//                .join();
+//    }
 
     // Step 3 (gateway drives on `accepted`)
     public void acceptRules(String userId, String depositId, boolean accepted) {
         zeebe.newPublishMessageCommand()
-                .messageName("accept rules one")
+                .messageName("Rules Acceptance")
                 .correlationKey(depositId)
                 .variables(Map.of("accepted", accepted))
                 .send()
                 .join();
     }
 
-    public void continueAfterAccept(String userId, String depositId) {
-        zeebe.newPublishMessageCommand()
-                .messageName("continue after accept rule")
-                .correlationKey(depositId)
-                .variables(Map.of())
-                .send()
-                .join();
-    }
+//    public void continueAfterAccept(String userId, String depositId) {
+//        zeebe.newPublishMessageCommand()
+//                .messageName("continue after accept rule")
+//                .correlationKey(depositId)
+//                .variables(Map.of())
+//                .send()
+//                .join();
+//    }
+//
+//    public void selectDeposit(String userId, String depositId, SelectDepositReq req) {
+//        zeebe.newPublishMessageCommand()
+//                .messageName("Select deposit")
+//                .correlationKey(depositId)
+//                .variables(Map.of())
+//                .send()
+//                .join();
+//    }
+//
+//    public void continueAfterSelect(String userId, String depositId) {
+//        zeebe.newPublishMessageCommand()
+//                .messageName("continue after select deposit")
+//                .correlationKey(depositId)
+//                .variables(Map.of())
+//                .send()
+//                .join();
+//    }
+//
+//    public void enterAmount(String userId, String depositId, BigDecimal amount) {
+//        zeebe.newPublishMessageCommand()
+//                .messageName("Entered the deposit opening amount")
+//                .correlationKey(depositId)
+//                .variables(Map.of("amount", amount))
+//                .send()
+//                .join();
+//    }
+//
+//    public void confirmAmount(String userId, String depositId) {
+//        zeebe.newPublishMessageCommand()
+//                .messageName("confirm amount")
+//                .correlationKey(depositId)
+//                .variables(Map.of())
+//                .send()
+//                .join();
+//    }
 
-    public void selectDeposit(String userId, String depositId, SelectDepositReq req) {
-        zeebe.newPublishMessageCommand()
-                .messageName("Select deposit")
-                .correlationKey(depositId)
-                .variables(Map.of())
-                .send()
-                .join();
-    }
+//    public void chooseProfitDestination(String userId, String depositId, ProfitDestinationReq req) {
+//        zeebe.newPublishMessageCommand()
+//                .messageName("choose destination deposit of profit")
+//                .correlationKey(depositId)
+//                .variables(Map.of(
+//                        "destinationType", req.destinationType(),
+//                        "destinationAccount", req.destinationAccount()
+//                ))
+//                .send()
+//                .join();
+//    }
 
-    public void continueAfterSelect(String userId, String depositId) {
-        zeebe.newPublishMessageCommand()
-                .messageName("continue after select deposit")
-                .correlationKey(depositId)
-                .variables(Map.of())
-                .send()
-                .join();
-    }
-
-    public void enterAmount(String userId, String depositId, BigDecimal amount) {
-        zeebe.newPublishMessageCommand()
-                .messageName("Entered the deposit opening amount")
-                .correlationKey(depositId)
-                .variables(Map.of("amount", amount))
-                .send()
-                .join();
-    }
-
-    public void confirmAmount(String userId, String depositId) {
-        zeebe.newPublishMessageCommand()
-                .messageName("confirm amount")
-                .correlationKey(depositId)
-                .variables(Map.of())
-                .send()
-                .join();
-    }
-
-    public void chooseProfitDestination(String userId, String depositId, ProfitDestinationReq req) {
-        zeebe.newPublishMessageCommand()
-                .messageName("choose destination deposit of profit")
-                .correlationKey(depositId)
-                .variables(Map.of(
-                        "destinationType", req.destinationType(),
-                        "destinationAccount", req.destinationAccount()
-                ))
-                .send()
-                .join();
-    }
-
-    public void continueAfterChooseDestination(String userId, String depositId) {
-        zeebe.newPublishMessageCommand()
-                .messageName("continue after choose destination deposit")
-                .correlationKey(depositId)
-                .variables(Map.of())
-                .send()
-                .join();
-    }
+//    public void continueAfterChooseDestination(String userId, String depositId) {
+//        zeebe.newPublishMessageCommand()
+//                .messageName("continue after choose destination deposit")
+//                .correlationKey(depositId)
+//                .variables(Map.of())
+//                .send()
+//                .join();
+//    }
 
     // Final step: write domain state then nudge BPMN to end
-
     public void confirmInfoAndOpen(FinalConfirmReq req) {
-        // 1) Call Core
-        CoreCreateDepositResponse coreResp;
-        if (req.sourceDeposit() != null || req.destDeposit() != null) {
-            coreResp = core.createDepositWithInterest(new CreateDepositWithTransferReq(
-                    req.deposType(),
-                    req.currency(),
-                    req.amount().toPlainString(),     // Core expects string
-                    req.sourceDeposit(),
-                    req.destDeposit(),
-                    req.customerNumber(),
-                    req.currentBranchCode()
-            ));
-        } else {
-            coreResp = core.createDeposit(new CreateDepositSimpleReq(
-                    req.deposType(),
-                    req.currency(),
-                    req.amount().toPlainString(),
-                    req.customerNumber(),
-                    req.currentBranchCode()
-            ));
-        }
+//        // 1) Call Core
+//        CoreCreateDepositResponse coreResp;
+//        if (req.sourceDeposit() != null || req.destDeposit() != null) {
+//            coreResp = core.createDepositWithInterest(new CreateDepositWithTransferReq(
+//                    req.depositType(),
+//                    req.currency(),
+//                    req.amount().toPlainString(),     // Core expects string
+//                    req.sourceDeposit(),
+//                    req.destDeposit(),
+//                    req.customerNumber(),
+//                    req.currentBranchCode()
+//            ));
+//        } else {
+//            coreResp = core.createDeposit(new CreateDepositSimpleReq(
+//                    req.depositType(),
+//                    req.currency(),
+//                    req.amount().toPlainString(),
+//                    req.customerNumber(),
+//                    req.currentBranchCode()
+//            ));
+//        }
+//
+//        // 2) Check Core status and extract data
+//        var http = coreResp.status();
+//        if (http == null || http.code() == null || http.code() != 200) {
+//            var code = (http != null ? http.code() : null);
+//            var msg  = (http != null ? http.message() : "Unknown error");
+//            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+//                    "Core deposit creation failed (httpCode=" + code + "): " + msg);
+//        }
+//
+//        var data = coreResp.result() != null ? coreResp.result().data() : null;
+//        if (data == null || data.depositNumber() == null) {
+//            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Core returned no deposit data");
+//        }
+//
+//        // 3) Domain write via Axon
+//        commandGateway.sendAndWait(new CreateDepositCommand(
+//                req.depositId(),
+//                req.userId(),
+//                data.depositNumber(),
+//                data.iban(),
+//                data.currentAmount(),
+//                data.currentWithdrawableAmount()
+//        ));
+//
+//        // 4) Nudge BPMN to end
+//        zeebe.newPublishMessageCommand()
+//                .messageName("Confirm information and open a deposit")
+//                .correlationKey(req.depositId())
+//                .variables(Map.of("opened", true))
+//                .send()
+//                .join();
+//    }
 
-        // 2) Check Core status and extract data
+        // 1) Call Core via smart endpoint (handles simple vs transfer)
+        var coreResp = core.createDepositSmart(new CreateDepositWithTransferReq(
+                // IMPORTANT: Core expects Strings for amount/depositType; match your Core schema
+                req.deposType(),
+                req.currency(),
+                req.amount(),
+                req.sourceDeposit(),
+                req.destDeposit(),
+                req.customerNumber(),
+                req.currentBranchCode()
+        ));
+
+        // 2) Validate Core response shape/status
         var http = coreResp.status();
         if (http == null || http.code() == null || http.code() != 200) {
-            var code = (http != null ? http.code() : null);
-            var msg  = (http != null ? http.message() : "Unknown error");
+            var code = http != null ? http.code() : null;
+            var msg  = http != null ? http.message() : "Unknown error";
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
                     "Core deposit creation failed (httpCode=" + code + "): " + msg);
         }
-
         var data = coreResp.result() != null ? coreResp.result().data() : null;
         if (data == null || data.depositNumber() == null) {
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Core returned no deposit data");
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "Core returned no deposit data");
         }
 
-        // 3) Domain write via Axon
+        // 3) Domain write via Axon – this publishes DepositCreatedEvent
         commandGateway.sendAndWait(new CreateDepositCommand(
                 req.depositId(),
                 req.userId(),
                 data.depositNumber(),
+                req.deposType(),
                 data.iban(),
-                data.currentAmount(),
+                data.currentAmount(),             // strings from Core
                 data.currentWithdrawableAmount()
         ));
 
-        // 4) Nudge BPMN to end
+        // 4) Signal BPMN final catch event to end the flow
         zeebe.newPublishMessageCommand()
-                .messageName("Confirm information and open a deposit")
+                .messageName("Confirm information and open a deposit") // MUST match BPMN message name
                 .correlationKey(req.depositId())
                 .variables(Map.of("opened", true))
                 .send()

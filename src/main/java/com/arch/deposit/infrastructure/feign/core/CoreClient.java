@@ -11,8 +11,8 @@ import java.util.List;
 
 @FeignClient(name = "core-client", url = "http://localhost:8290/api/corebanking")
 public interface CoreClient {
-    @GetMapping("/deposits/v1.0/types")
-    List<CoreDepositTypeResponseDTO> getDepositTypes();
+//    @GetMapping("/deposits/v1.0/types")
+//    List<CoreDepositTypeResponseDTO> getDepositTypes();
 
     @GetMapping("/deposits/v1.0/customer/{userId}")
     CoreCustomerDepositsResponseDTO getCustomerDeposits(@PathVariable("userId") String userId);

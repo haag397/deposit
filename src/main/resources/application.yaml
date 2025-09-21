@@ -30,8 +30,12 @@ axon:
     processors:
       deposit-projections:       # must match @ProcessingGroup("deposit-projections")
         mode: subscribing
-#        mode: tracking # <--- projector runs inline with command handling
         source: eventBus
+        #        mode: tracking # <--- projector runs inline with command handling
+#        mode: tracking
+#        source: eventStore
+        # optional: start at tail (to read past events)
+#        initial-segment-count: 1
 #  eventstore:
 #    jdbc:
 #      schema: default

@@ -5,7 +5,7 @@ import jakarta.annotation.Nullable;
 import java.math.BigDecimal;
 
 public record CreateDepositWithTransferReq(
-        String depositType,
+        String deposType,
         String currency,
         String amount,
         @Nullable String sourceDeposit,   // optional

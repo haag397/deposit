@@ -3,7 +3,7 @@ package com.arch.deposit.infrastructure.feign.core.dto;
 import java.math.BigDecimal;
 
 public record CreateDepositSimpleReq(
-        String depositType,
+        String deposType,
         String currency,
 //        BigDecimal amount,
         String amount,             // NOTE: Core expects STRING amounts

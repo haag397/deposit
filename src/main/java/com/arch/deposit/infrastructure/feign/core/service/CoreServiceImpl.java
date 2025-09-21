@@ -14,10 +14,10 @@ import static com.arch.deposit.exception.FeignExceptionTranslator.toCoreExceptio
 public class CoreServiceImpl implements CoreService{
     private final CoreClient coreClient;
 
-    @Override
-    public List<CoreDepositTypeResponseDTO> getDepositTypes() {
-        return coreClient.getDepositTypes();
-    }
+//    @Override
+//    public List<CoreDepositTypeResponseDTO> getDepositTypes() {
+//        return coreClient.getDepositTypes();
+//    }
 
     @Override
     public CoreCustomerDepositsResponseDTO getCustomerDeposits(String userId) {
@@ -50,7 +50,7 @@ public class CoreServiceImpl implements CoreService{
             return createDepositWithInterest(req);
         } else {
             var simple = new CreateDepositSimpleReq(
-                    req.depositType(),
+                    req.deposType(),
                     req.currency(),
                     req.amount(),
                     req.customerNumber(),

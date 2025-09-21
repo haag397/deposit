@@ -28,6 +28,7 @@ public class DepositAggregate {
                 cmd.depositId(),
                 cmd.userId(),
                 cmd.depositNumber(),
+                cmd.deposType(),
                 cmd.iban(),
                 cmd.currentAmount(),
                 cmd.currentWithdrawableAmount()
