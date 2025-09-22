@@ -1,4 +1,4 @@
-package com.arch.deposit.event;
+package com.arch.deposit.event.deposit;
 
 import java.util.UUID;
 

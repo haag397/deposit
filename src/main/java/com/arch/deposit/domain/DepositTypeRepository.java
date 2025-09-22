@@ -4,16 +4,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.*;
-
+@Repository
 public interface DepositTypeRepository extends JpaRepository<DepositType, UUID> {
-
     Optional<DepositType> findByName(String name);
-
     // ✅ pure derived query (no @Modifying, no @Query)
     boolean existsByNameIgnoreCase(String name);
-
     // ✅ bulk delete returns affected row count
     @Modifying
     @Query("delete from DepositType d where d.name not in :names")

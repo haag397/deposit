@@ -1,77 +1,85 @@
 package com.arch.deposit.service;
 
-import com.arch.deposit.api.dto.DepositTypeCreateDTO;
-import com.arch.deposit.api.dto.DepositTypeResponse;
-import com.arch.deposit.api.dto.DepositTypeUpdateDTO;
+import com.arch.deposit.api.dto.deposit_type.DepositTypeCreateDTO;
+import com.arch.deposit.api.dto.deposit_type.DepositTypeResponseDTO;
+import com.arch.deposit.api.dto.deposit_type.DepositTypeUpdateDTO;
+import com.arch.deposit.command.deposit_type.CreateDepositTypeCommand;
+import com.arch.deposit.command.deposit_type.DeleteDepositTypeCommand;
+import com.arch.deposit.command.deposit_type.UpdateDepositTypeCommand;
 import com.arch.deposit.domain.DepositType;
 import com.arch.deposit.domain.DepositTypeRepository;
+import com.arch.deposit.query.ExistsDepositTypeByNameQuery;
+import com.arch.deposit.query.GetDepositTypeQuery;
+import com.arch.deposit.query.ListDepositTypesQuery;
 import lombok.RequiredArgsConstructor;
+import org.axonframework.commandhandling.gateway.CommandGateway;
+import org.axonframework.messaging.responsetypes.ResponseTypes;
+import org.axonframework.queryhandling.QueryGateway;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class DepositTypeService {
 
-    private final DepositTypeRepository repo;
+    private final CommandGateway commandGateway;
+    private final QueryGateway queryGateway;
+    private final DepositTypeRepository depositTypeRepository;
 
-    public DepositTypeResponse create(DepositTypeCreateDTO req) {
-        // simple uniqueness guard on name (optional but helpful)
-        if (repo.existsByNameIgnoreCase(req.name())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Deposit type name already exists");
+    public DepositTypeResponseDTO create(DepositTypeCreateDTO req) {
+        UUID id = UUID.randomUUID();
+        if (depositTypeRepository.existsByNameIgnoreCase(req.getName())) {
+            throw new RuntimeException();
         }
-        var entity = DepositType.builder()
-                .name(req.name().trim())
-                .description(req.description())
+
+        CreateDepositTypeCommand command = CreateDepositTypeCommand.builder()
+                .id(id)
+                .name(req.getName())
+                .description(req.getDescription())
                 .build();
-        entity = repo.save(entity);
-        return toResp(entity);
+        commandGateway.sendAndWait(command);
+
+        return DepositTypeResponseDTO.builder()
+                .name(req.getName())
+                .description(req.getDescription())
+                .build();
     }
 
-    @Transactional(readOnly = true)
-    public List<DepositTypeResponse> list() {
-        return repo.findAll().stream().map(this::toResp).toList();
+    public List<DepositTypeResponseDTO> list() {
+        return queryGateway.query(
+                new ListDepositTypesQuery(),
+                ResponseTypes.multipleInstancesOf(DepositTypeResponseDTO.class)
+        ).join();
     }
 
-    @Transactional(readOnly = true)
-    public DepositTypeResponse get(UUID id) {
-        return toResp(findOr404(id));
+    public DepositTypeResponseDTO get(UUID id) {
+        return queryGateway.query(
+                new GetDepositTypeQuery(id),
+                ResponseTypes.instanceOf(DepositTypeResponseDTO.class)
+        ).join();
     }
 
-    public DepositTypeResponse update(UUID id, DepositTypeUpdateDTO req) {
-        var entity = findOr404(id);
-
-        // check name conflict with others (if name changed)
-        if (!entity.getName().equalsIgnoreCase(req.name())
-                && repo.existsByNameIgnoreCase(req.name())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Deposit type name already exists");
+    public DepositTypeResponseDTO update(UUID id, DepositTypeUpdateDTO req) {
+        // Optional: uniqueness check if name changing
+        if (req.name() != null && !req.name().isBlank()) {
+            boolean exists = queryGateway.query(
+                    new ExistsDepositTypeByNameQuery(req.name()),
+                    ResponseTypes.instanceOf(Boolean.class)
+            ).join();
+            // If you want to allow same name for the same id, you’d add a query that excludes id.
+            if (exists) throw new IllegalArgumentException("Deposit type name already exists: " + req.name());
         }
-
-        entity.setName(req.name().trim());
-        entity.setDescription(req.description());
-        return toResp(entity); // JPA dirty checking will flush
+        commandGateway.sendAndWait(new UpdateDepositTypeCommand(id, req.name(), req.description()));
+        return get(id);
     }
 
     public void delete(UUID id) {
-        if (!repo.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Deposit type not found");
-        }
-        repo.deleteById(id);
-    }
-
-    // --- helpers ---
-    private DepositType findOr404(UUID id) {
-        return repo.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Deposit type not found"));
-    }
-
-    private DepositTypeResponse toResp(DepositType d) {
-        return new DepositTypeResponse(d.getId(), d.getName(), d.getDescription());
+        commandGateway.sendAndWait(new DeleteDepositTypeCommand(id));
     }
 }

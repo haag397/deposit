@@ -1,4 +1,4 @@
-package com.arch.deposit.command;
+package com.arch.deposit.command.deposit;
 
 import org.axonframework.modelling.command.TargetAggregateIdentifier;
 

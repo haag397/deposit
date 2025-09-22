@@ -1,8 +1,8 @@
 package com.arch.deposit.api.controller;
 
-import com.arch.deposit.api.dto.DepositTypeCreateDTO;
-import com.arch.deposit.api.dto.DepositTypeResponse;
-import com.arch.deposit.api.dto.DepositTypeUpdateDTO;
+import com.arch.deposit.api.dto.deposit_type.DepositTypeCreateDTO;
+import com.arch.deposit.api.dto.deposit_type.DepositTypeResponseDTO;
+import com.arch.deposit.api.dto.deposit_type.DepositTypeUpdateDTO;
 import com.arch.deposit.service.DepositTypeService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -20,23 +20,23 @@ public class DepositTypeController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public DepositTypeResponse create(@Valid @RequestBody DepositTypeCreateDTO req) {
+    public DepositTypeResponseDTO create(@Valid @RequestBody DepositTypeCreateDTO req) {
         return service.create(req);
     }
 
     @GetMapping
-    public List<DepositTypeResponse> list() {
+    public List<DepositTypeResponseDTO> list() {
         return service.list();
     }
 
     @GetMapping("/{id}")
-    public DepositTypeResponse get(@PathVariable UUID id) {
+    public DepositTypeResponseDTO get(@PathVariable UUID id) {
         return service.get(id);
     }
 
     @PutMapping("/{id}")
-    public DepositTypeResponse update(@PathVariable UUID id,
-                                  @Valid @RequestBody DepositTypeUpdateDTO req) {
+    public DepositTypeResponseDTO update(@PathVariable UUID id,
+                                      @Valid @RequestBody DepositTypeUpdateDTO req) {
         return service.update(id, req);
     }
 

@@ -1,7 +1,7 @@
 package com.arch.deposit.aggregate;
 
-import com.arch.deposit.command.CreateDepositCommand;
-import com.arch.deposit.event.DepositCreatedEvent;
+import com.arch.deposit.command.deposit.CreateDepositCommand;
+import com.arch.deposit.event.deposit.DepositCreatedEvent;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.CommandHandler;
@@ -9,8 +9,6 @@ import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.modelling.command.AggregateIdentifier;
 import org.axonframework.modelling.command.AggregateLifecycle;
 import org.axonframework.spring.stereotype.Aggregate;
-
-import java.util.UUID;
 
 @Aggregate
 @NoArgsConstructor
@@ -24,15 +22,23 @@ public class DepositAggregate {
     @CommandHandler
     public DepositAggregate(CreateDepositCommand cmd) {
         log.info("CMD CreateDepositCommand depositId={}", cmd.depositId());
+
+        if (cmd.depositId() == null || cmd.depositId().isBlank())
+            throw new IllegalArgumentException("depositId is required");
+        if (cmd.userId() == null || cmd.userId().isBlank())
+            throw new IllegalArgumentException("userId is required");
         AggregateLifecycle.apply(new DepositCreatedEvent(
                 cmd.depositId(),
                 cmd.userId(),
+                cmd.statusCode(),
+                cmd.statusMessage(),
+                cmd.transactionDate(),
                 cmd.depositNumber(),
-                cmd.deposType(),
-                cmd.iban(),
                 cmd.currentAmount(),
-                cmd.currentWithdrawableAmount()
-        ));
+                cmd.currentWithdrawableAmount(),
+                cmd.transactionId(),
+                cmd.deposType(),
+                cmd.customerNumber()       ));
     }
 
     @EventSourcingHandler

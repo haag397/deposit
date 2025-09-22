@@ -17,7 +17,6 @@ import java.util.UUID;
 public class DepositType {
     @Id
     @Column(name = "id", updatable = false, nullable = false, unique = true)
-    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     private String name;
     private String description;

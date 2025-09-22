@@ -65,7 +65,7 @@ public class Deposit {
     private Boolean isCommercialDeposit;
     @Column(name = "withdraw_tools", columnDefinition = "jsonb")
     @JdbcTypeCode(SqlTypes.JSON)
-    private java.util.List<String> withdrawTools;
+    private List<String> withdrawTools;
     @Column(name = "follow_code")
     private String followCode;
     @Column(name = "available_amount")
@@ -76,7 +76,7 @@ public class Deposit {
     private Boolean currentWithoutChequeBook;
     @Column(name = "withdraw_tool_codes", columnDefinition = "jsonb")
     @JdbcTypeCode(SqlTypes.JSON)
-    private java.util.List<String> withdrawToolCodes;
+    private List<String> withdrawToolCodes;
     @Column(name = "deposit_right")
     private Boolean depositRight;
     @Column(name = "english_individual_or_shared_deposit")
