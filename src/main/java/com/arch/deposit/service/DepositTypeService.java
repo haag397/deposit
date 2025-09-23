@@ -65,17 +65,21 @@ public class DepositTypeService {
         ).join();
     }
 
-    public DepositTypeResponseDTO update(UUID id, DepositTypeUpdateDTO req) {
+    public DepositTypeResponseDTO update(UUID id, DepositTypeUpdateDTO depositTypeUpdateDTO) {
         // Optional: uniqueness check if name changing
-        if (req.name() != null && !req.name().isBlank()) {
+        if (depositTypeUpdateDTO.name() != null && !depositTypeUpdateDTO.name().isBlank()) {
             boolean exists = queryGateway.query(
-                    new ExistsDepositTypeByNameQuery(req.name()),
+                    new ExistsDepositTypeByNameQuery(depositTypeUpdateDTO.name()),
                     ResponseTypes.instanceOf(Boolean.class)
             ).join();
             // If you want to allow same name for the same id, you’d add a query that excludes id.
-            if (exists) throw new IllegalArgumentException("Deposit type name already exists: " + req.name());
+            if (exists) throw new IllegalArgumentException("Deposit type name already exists: " + depositTypeUpdateDTO.name());
         }
-        commandGateway.sendAndWait(new UpdateDepositTypeCommand(id, req.name(), req.description()));
+        commandGateway.sendAndWait(new UpdateDepositTypeCommand(
+                id,
+                depositTypeUpdateDTO.name(),
+                depositTypeUpdateDTO.description(),
+                depositTypeUpdateDTO.code()));
         return get(id);
     }
 

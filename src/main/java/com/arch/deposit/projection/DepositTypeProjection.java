@@ -25,47 +25,47 @@ public class DepositTypeProjection {
 
     @EventHandler
     @Transactional
-    public void on(DepositTypeCreatedEvent e) {
+    public void on(DepositTypeCreatedEvent depositTypeCreatedEvent) {
 //        if (repo.findById(e.getId()) return; // idempotent
         var row = DepositType.builder()
-                .id(e.getId())
-                .name(e.getName())
-                .description(e.getDescription())
+                .id(depositTypeCreatedEvent.getId())
+                .name(depositTypeCreatedEvent.getName())
+                .description(depositTypeCreatedEvent.getDescription())
                 .build();
         repo.save(row);
     }
 
     @EventHandler
     @Transactional
-    public void on(DepositTypeUpdatedEvent e) {
-        var row = repo.findById(e.id()).orElseThrow();
-        row.setName(e.name());
-        row.setDescription(e.description());
+    public void on(DepositTypeUpdatedEvent depositTypeUpdatedEvent) {
+        var row = repo.findById(depositTypeUpdatedEvent.getId()).orElseThrow();
+        row.setName(depositTypeUpdatedEvent.getName());
+        row.setDescription(depositTypeUpdatedEvent.getDescription());
         repo.save(row);
     }
 
     @EventHandler
     @Transactional
-    public void on(DepositTypeDeletedEvent e) {
-        repo.deleteById(e.id());
+    public void on(DepositTypeDeletedEvent depositTypeDeletedEvent) {
+        repo.deleteById(depositTypeDeletedEvent.getId());
     }
 
     // Query handlers
     @QueryHandler
-    public DepositTypeResponseDTO handle(GetDepositTypeQuery q) {
-        var row = repo.findById(q.id()).orElseThrow();
+    public DepositTypeResponseDTO handle(GetDepositTypeQuery getDepositTypeQuery) {
+        var row = repo.findById(getDepositTypeQuery.id()).orElseThrow();
         return new DepositTypeResponseDTO(row.getId(), row.getName(), row.getDescription());
     }
 
     @QueryHandler
-    public List<DepositTypeResponseDTO> handle(ListDepositTypesQuery q) {
+    public List<DepositTypeResponseDTO> handle(ListDepositTypesQuery listDepositTypesQuery) {
         return repo.findAll().stream()
                 .map(r -> new DepositTypeResponseDTO(r.getId(), r.getName(), r.getDescription()))
                 .toList();
     }
 
     @QueryHandler
-    public Boolean handle(ExistsDepositTypeByNameQuery q) {
-        return repo.existsByNameIgnoreCase(q.name());
+    public Boolean handle(ExistsDepositTypeByNameQuery existsDepositTypeByNameQuery) {
+        return repo.existsByNameIgnoreCase(existsDepositTypeByNameQuery.name());
     }
 }

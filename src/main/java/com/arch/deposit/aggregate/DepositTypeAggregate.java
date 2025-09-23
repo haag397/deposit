@@ -24,39 +24,45 @@ public class DepositTypeAggregate {
     private String name;
 
     @CommandHandler
-    public DepositTypeAggregate(CreateDepositTypeCommand cmd) {
-        validateName(cmd.getName());
+    public DepositTypeAggregate(CreateDepositTypeCommand createDepositTypeCommand) {
+        validateName(createDepositTypeCommand.getName());
         AggregateLifecycle.apply(new DepositTypeCreatedEvent(
-                cmd.getId(), cmd.getName().trim(), cmd.getDescription()
+                createDepositTypeCommand.getId(),
+                createDepositTypeCommand.getName().trim(),
+                createDepositTypeCommand.getDescription(),
+                createDepositTypeCommand.getCode()
         ));
     }
 
     @EventSourcingHandler
-    public void on(DepositTypeCreatedEvent e) {
-        this.id = e.getId();
-        this.name = e.getName();
+    public void on(DepositTypeCreatedEvent depositTypeCreatedEvent) {
+        this.id = depositTypeCreatedEvent.getId();
+        this.name = depositTypeCreatedEvent.getName();
     }
 
     @CommandHandler
-    public void handle(UpdateDepositTypeCommand cmd) {
-        validateName(cmd.getName());
+    public void handle(UpdateDepositTypeCommand updateDepositTypeCommand) {
+        validateName(updateDepositTypeCommand.getName());
         AggregateLifecycle.apply(new DepositTypeUpdatedEvent(
-                cmd.getId(), cmd.getName().trim(), cmd.getDescription()
+                updateDepositTypeCommand.getId(),
+                updateDepositTypeCommand.getName().trim(),
+                updateDepositTypeCommand.getDescription(),
+                updateDepositTypeCommand.getCode()
         ));
     }
 
     @EventSourcingHandler
-    public void on(DepositTypeUpdatedEvent e) {
-        this.name = e.name();
+    public void on(DepositTypeUpdatedEvent depositTypeUpdatedEvent) {
+        this.name = depositTypeUpdatedEvent.getName();
     }
 
     @CommandHandler
-    public void handle(DeleteDepositTypeCommand cmd) {
-        AggregateLifecycle.apply(new DepositTypeDeletedEvent(cmd.getId()));
+    public void handle(DeleteDepositTypeCommand deleteDepositTypeCommand) {
+        AggregateLifecycle.apply(new DepositTypeDeletedEvent(deleteDepositTypeCommand.getId()));
     }
 
     @EventSourcingHandler
-    public void on(DepositTypeDeletedEvent e) {
+    public void on(DepositTypeDeletedEvent depositTypeDeletedEvent) {
         // Optionally mark deleted; for now nothing needed
     }
 

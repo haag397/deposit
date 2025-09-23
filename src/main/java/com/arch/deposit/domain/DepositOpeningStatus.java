@@ -1,7 +1,8 @@
 package com.arch.deposit.domain;
 
 public enum DepositOpeningStatus {
+  REQUESTED,
   SUCCESS,
-  FAILED,
+  UNKNOWN,
   ERROR
 }

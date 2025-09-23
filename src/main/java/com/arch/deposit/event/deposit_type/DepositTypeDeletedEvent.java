@@ -1,7 +1,10 @@
 package com.arch.deposit.event.deposit_type;
 
+import lombok.Value;
+
 import java.util.UUID;
 
-public record DepositTypeDeletedEvent(
-        UUID id
-) {}
+@Value
+public class DepositTypeDeletedEvent{
+        UUID id;
+}

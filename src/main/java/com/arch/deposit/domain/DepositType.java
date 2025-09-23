@@ -19,5 +19,6 @@ public class DepositType {
     @Column(name = "id", updatable = false, nullable = false, unique = true)
     private UUID id;
     private String name;
+    private String code;
     private String description;
 }

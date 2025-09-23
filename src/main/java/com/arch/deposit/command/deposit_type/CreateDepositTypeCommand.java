@@ -12,5 +12,6 @@ public class CreateDepositTypeCommand {
     @TargetAggregateIdentifier
     private UUID id;
     private String name;
+    private String code;
     private String description;
 }

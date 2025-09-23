@@ -6,9 +6,7 @@ import com.arch.deposit.domain.DepositTypeRepository;
 import com.arch.deposit.service.DepositAppService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -18,7 +16,7 @@ import java.util.List;
 public class DepositController {
 
     private final DepositTypeRepository depositTypeRepository;
-    private final DepositAppService app;
+    private final DepositAppService depositAppService;
 
     /** Browse available deposit types (from your DB). */
     @GetMapping("/types")
@@ -28,7 +26,7 @@ public class DepositController {
 
     @PostMapping("/session")
     public String startSession(@Valid @RequestBody StartSessionReq req) {
-    return app.startSession(req.userId(), req.customerNumber());
+    return depositAppService.startSession(req.userId(), req.customerNumber());
 }
 
     // 1) Select deposit type
@@ -51,7 +49,7 @@ public class DepositController {
     // 3) Accept rules (drives gateway)
     @PostMapping("/terms/accept")
     public void acceptRules(@Valid @RequestBody AcceptRulesReq req) {
-        app.acceptRules(req.userId(), req.depositId(), req.accepted());
+        depositAppService.acceptRules(req.userId(), req.depositId(), req.accepted());
     }
 
     // Continue after accept
@@ -99,6 +97,6 @@ public class DepositController {
     // Final confirm & open
     @PostMapping("/confirm-open")
     public void confirmAndOpen(@Valid @RequestBody FinalConfirmReq req) {
-        app.confirmInfoAndOpen(req);
+        depositAppService.confirmInfoAndOpen(req);
     }
 }

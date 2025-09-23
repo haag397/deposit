@@ -2,6 +2,7 @@ package com.arch.deposit.service;
 
 import com.arch.deposit.api.dto.FinalConfirmReq;
 import com.arch.deposit.command.deposit.CreateDepositCommand;
+import com.arch.deposit.command.deposit.MarkDepositRequestedCommand;
 import com.arch.deposit.infrastructure.feign.core.dto.CreateDepositWithTransferReq;
 import com.arch.deposit.infrastructure.feign.core.service.CoreService;
 import io.camunda.zeebe.client.ZeebeClient;
@@ -17,14 +18,18 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class DepositAppService {
 
-    private final ZeebeClient zeebe;
+    private final ZeebeClient zeebeClient;
     private final CommandGateway commandGateway;
-    private final CoreService core;
+    private final CoreService coreService;
 
     // Step 0
     public String startSession(String userId, String customerNumber) {
         String depositId = UUID.randomUUID().toString();
-        zeebe.newCreateInstanceCommand()
+        // Fire REQUESTED so a row is created immediately
+        commandGateway.sendAndWait(new MarkDepositRequestedCommand(
+                depositId, userId, null, customerNumber
+        ));
+        zeebeClient.newCreateInstanceCommand()
                 .bpmnProcessId("opening-deposit")
                 .latestVersion()
                 .variables(Map.of("userId", userId, "customerNumber", customerNumber, "depositId", depositId))
@@ -55,7 +60,7 @@ public class DepositAppService {
 
     // Step 3 (gateway drives on `accepted`)
     public void acceptRules(String userId, String depositId, boolean accepted) {
-        zeebe.newPublishMessageCommand()
+        zeebeClient.newPublishMessageCommand()
                 .messageName("Rules Acceptance")
                 .correlationKey(depositId)
                 .variables(Map.of("accepted", accepted))
@@ -130,15 +135,15 @@ public class DepositAppService {
 //    }
 
     // Final step: write domain state then nudge BPMN to end
-    public void confirmInfoAndOpen(FinalConfirmReq req) {
-        var coreResp = core.createDepositSmart(new CreateDepositWithTransferReq(
-                req.deposType(),
-                req.currency(),
-                req.amount(),
-                req.sourceDeposit(),
-                req.destDeposit(),
-                req.customerNumber(),
-                req.currentBranchCode()
+    public void confirmInfoAndOpen(FinalConfirmReq finalConfirmReq) {
+        var coreResp = coreService.createDepositSmart(new CreateDepositWithTransferReq(
+                finalConfirmReq.deposType(),
+                finalConfirmReq.currency(),
+                finalConfirmReq.amount(),
+                finalConfirmReq.sourceDeposit(),
+                finalConfirmReq.destDeposit(),
+                finalConfirmReq.customerNumber(),
+                finalConfirmReq.currentBranchCode()
         ));
 
         var http = coreResp.status();
@@ -150,27 +155,23 @@ public class DepositAppService {
         var meta = coreResp.meta();
 
         commandGateway.sendAndWait(new CreateDepositCommand(
-                req.depositId(),
-                req.userId(),
-
+                finalConfirmReq.depositId(),
+                finalConfirmReq.userId(),
                 statusCode,
                 statusMessage,
-
                 data != null ? data.transactionDate() : null,
                 data != null ? data.depositNumber() : null,
                 data != null ? data.currentAmount() : null,
                 data != null ? data.currentWithdrawableAmount() : null,
                 meta != null ? meta.transactionId() : null,
-
-                // pass request values so projection can save them on SUCCESS
-                req.deposType(),
-                req.customerNumber()
+                finalConfirmReq.deposType(),
+                finalConfirmReq.customerNumber()
         ));
 
         if (Objects.equals(statusCode, 200)) {
-            zeebe.newPublishMessageCommand()
+            zeebeClient.newPublishMessageCommand()
                     .messageName("Confirm information and open a deposit")
-                    .correlationKey(req.depositId())
+                    .correlationKey(finalConfirmReq.depositId())
                     .variables(Map.of("opened", true))
                     .send()
                     .join();

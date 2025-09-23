@@ -1,12 +1,8 @@
 package com.arch.deposit.domain;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
-import java.util.Map;
 import java.util.UUID;
 
 @Entity
@@ -20,9 +16,11 @@ public class DepositOpenRequest {
     @Id
     @GeneratedValue
     private UUID id;
+    @Column(name = "correlation_id", nullable = false, length = 36)
+    private String correlationId;
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 16)
-    private DepositOpeningStatus status;           // SUCCESS / FAILED / ERROR
+    private DepositOpeningStatus status;           // REQUESTED / SUCCESS / FAILED / ERROR
     @Column(name = "transaction_date")
     private String transactionDate;
     @Column(name = "deposit_number")

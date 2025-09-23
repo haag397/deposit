@@ -16,33 +16,33 @@ import java.util.UUID;
 @RequestMapping("/api/deposit-types")
 public class DepositTypeController {
 
-    private final DepositTypeService service;
+    private final DepositTypeService depositTypeService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public DepositTypeResponseDTO create(@Valid @RequestBody DepositTypeCreateDTO req) {
-        return service.create(req);
+    public DepositTypeResponseDTO create(@Valid @RequestBody DepositTypeCreateDTO depositTypeCreateDTO) {
+        return depositTypeService.create(depositTypeCreateDTO);
     }
 
     @GetMapping
     public List<DepositTypeResponseDTO> list() {
-        return service.list();
+        return depositTypeService.list();
     }
 
     @GetMapping("/{id}")
     public DepositTypeResponseDTO get(@PathVariable UUID id) {
-        return service.get(id);
+        return depositTypeService.get(id);
     }
 
     @PutMapping("/{id}")
     public DepositTypeResponseDTO update(@PathVariable UUID id,
-                                      @Valid @RequestBody DepositTypeUpdateDTO req) {
-        return service.update(id, req);
+                                      @Valid @RequestBody DepositTypeUpdateDTO depositTypeUpdateDTO) {
+        return depositTypeService.update(id, depositTypeUpdateDTO);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable UUID id) {
-        service.delete(id);
+        depositTypeService.delete(id);
     }
 }

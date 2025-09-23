@@ -6,5 +6,6 @@ import lombok.Builder;
 @Builder
 public record DepositTypeUpdateDTO (
         @NotBlank String name,
-        String description
+        String description,
+        String code
 ) {}

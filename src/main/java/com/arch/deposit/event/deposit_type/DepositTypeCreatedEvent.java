@@ -5,7 +5,8 @@ import lombok.Value;
 import java.util.UUID;
 @Value
 public class DepositTypeCreatedEvent {
-    private UUID id;
-    private String name;
-    private String description;
+    UUID id;
+    String name;
+    String code;
+    String description;
     }
